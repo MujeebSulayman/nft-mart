@@ -112,6 +112,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     require(refundNfts(id), 'Nft refund failed');
 
     nfts[id].deleted = true;
+
   }
 
   // Refund Nfts
@@ -188,8 +189,12 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     sale.timestamp = currentTime();
     sale.endTime = nfts[nftId].endTime;
     sales[nftId].push(sale);
+
     balance += msg.value;
     nfts[nftId].owner = msg.sender;
+
+    // Automatically mint the NFT when purchased
+    mintNft(nftId); // Call to mint the NFT
 
     _totalSales.increment();
   }
@@ -257,19 +262,39 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
 
     payTo(nfts[nftId].owner, payoutAmount);
     payTo(owner(), serviceAmount);
+    balance = 0;
     nfts[nftId].paidOut = true;
   }
 
   //Mint Nft
   function mintNft(uint256 nftId) internal returns (bool) {
+    require(nftExists[nftId], 'Nft does not exist');
+    require(!nfts[nftId].minted, 'Nft already minted');
+
+    // Mint the NFT to each buyer of the NFT (if multiple buyers)
     for (uint256 i = 0; i < sales[nftId].length; i++) {
-      _totalTokens.increment();
-      sales[nftId][i].minted = true;
-      _mint(sales[nftId][i].owner, _totalTokens.current());
+        _totalTokens.increment();
+        sales[nftId][i].minted = true;
+        _mint(sales[nftId][i].owner, _totalTokens.current());
     }
+
     nfts[nftId].minted = true;
     return true;
   }
+
+//Transfer ownership
+funtion transferOwnership (uint256 nftId, address newOwner) public {
+  require(nftExists[nftId], 'Nft does not exist');
+  require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');
+
+  // Transfer ownership using the ERC721 _transfer method
+    _transfer(nfts[nftId].owner, newOwner, nftId);
+
+    // Update internal mapping for the NFT owner
+    nfts[nftId].owner = newOwner;
+}
+
+
 
   // Pay to
   function payTo(address to, uint256 amount) internal {
