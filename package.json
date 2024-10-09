@@ -3,7 +3,7 @@
   "description": "A Next.js starter that includes all you need to build amazing projects",
   "version": "1.0.0",
   "private": true,
-  "author": "darlington gospel<darlingtongospel@gmail.com>",
+  "author": "Mujeeb Sulayman<sulaymanmujeeb6@gmail.com>",
   "license": "MIT",
   "keywords": [
     "nextjs",
@@ -18,7 +18,7 @@
     "start": "next start",
     "export": "next build && next export",
     "lint": "next lint",
-    "format": "prettier --ignore-path .gitignore \"pages/**/*.+(ts|js|tsx)\" --write"
+    "format": "prettier --ignore-path .gitignore \"pages/**/*.+(ts|js|tsx|jsx)\" --write"
   },
   "lint-staged": {
     "./src/**/*.{ts,js,jsx,tsx}": [
@@ -35,6 +35,7 @@
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.15",
+    "dotenv": "16.4.5",
     "emojtcha-react": "1.0.6",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",

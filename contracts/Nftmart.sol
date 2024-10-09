@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity ^0.8.18;
+//SPDX-License-Identifier:MIT
+pragma solidity >=0.7.0 <0.9.0;
 
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
@@ -112,7 +112,6 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     require(refundNfts(id), 'Nft refund failed');
 
     nfts[id].deleted = true;
-
   }
 
   // Refund Nfts
@@ -125,6 +124,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     return true;
   }
 
+  //Get single NFT
   function getSingleNft(uint256 id) public view returns (NftStruct memory) {
     return nfts[id];
   }
@@ -252,13 +252,14 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   //Payout
   function payout(uint256 nftId) public {
     require(nftExists[nftId], 'Nft does not exist');
-    require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');
+    require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');  
     require(!nfts[nftId].deleted, 'Nft already deleted');
     require(!nfts[nftId].paidOut, 'Nft already paid out');
     require(nfts[nftId].minted, 'Nft not minted');
 
-    uint256 payoutAmount = (balance * (10000 - servicePct)) / 10000;
-    uint256 serviceAmount = balance - payoutAmount;
+    uint256 revenue = nfts[nftId].price;
+    uint256 serviceAmount = (revenue * servicePct) / 100;
+    uint256 payoutAmount = revenue - serviceAmount;
 
     payTo(nfts[nftId].owner, payoutAmount);
     payTo(owner(), serviceAmount);
@@ -271,30 +272,24 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     require(nftExists[nftId], 'Nft does not exist');
     require(!nfts[nftId].minted, 'Nft already minted');
 
-    // Mint the NFT to each buyer of the NFT (if multiple buyers)
     for (uint256 i = 0; i < sales[nftId].length; i++) {
-        _totalTokens.increment();
-        sales[nftId][i].minted = true;
-        _mint(sales[nftId][i].owner, _totalTokens.current());
+      _totalTokens.increment();
+      sales[nftId][i].minted = true;
+      _mint(sales[nftId][i].owner, _totalTokens.current());
     }
 
     nfts[nftId].minted = true;
     return true;
   }
 
-//Transfer ownership
-funtion transferOwnership (uint256 nftId, address newOwner) public {
-  require(nftExists[nftId], 'Nft does not exist');
-  require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');
+  // Transfer ownership
+  function transferOwnership(uint256 nftId, address newOwner) public {
+    require(nftExists[nftId], 'Nft does not exist');
+    require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');
 
-  // Transfer ownership using the ERC721 _transfer method
     _transfer(nfts[nftId].owner, newOwner, nftId);
-
-    // Update internal mapping for the NFT owner
     nfts[nftId].owner = newOwner;
-}
-
-
+  }
 
   // Pay to
   function payTo(address to, uint256 amount) internal {
