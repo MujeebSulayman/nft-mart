@@ -217,10 +217,10 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     balance += msg.value;
 
     if (!nfts[nftId].minted) {
-      _mint(msg.sender, nftId); // Mint the NFT if not already minted
+      _mint(msg.sender, nftId);
       nfts[nftId].minted = true;
     } else {
-      _transfer(previousOwner, msg.sender, nftId); // Transfer if already minted
+      _transfer(previousOwner, msg.sender, nftId);
     }
 
     _totalSales.increment();
