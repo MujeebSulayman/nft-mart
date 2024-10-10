@@ -7,6 +7,7 @@ async function main() {
   try {
     const [deployer] = await ethers.getSigners()
     console.log('Deploying contracts with the account:', deployer.address)
+    
     console.log('Account balance:', (await ethers.provider.getBalance(deployer.address)).toString());
 
     const Nftmart = await ethers.getContractFactory('Nftmart')

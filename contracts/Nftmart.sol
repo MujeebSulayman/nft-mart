@@ -15,6 +15,20 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   uint256 public servicePct;
   uint256 public balance;
 
+  // Add these event declarations
+  event NftPaidOut(
+    uint256 indexed nftId,
+    address indexed owner,
+    uint256 payoutAmount,
+    uint256 serviceAmount
+  );
+  event NftSold(
+    uint256 indexed nftId,
+    address indexed seller,
+    address indexed buyer,
+    uint256 price
+  );
+
   // Nft Struct
   struct NftStruct {
     uint256 id;
@@ -59,9 +73,12 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     uint256 endTime,
     uint256 price
   ) public {
-    require(price > 0 ether, 'Price should be greater than zero');
+    require(price > 0, 'Price should be greater than zero');
     require(bytes(name).length > 0, 'Name should be greater than zero');
-    require(endTime > currentTime(), 'End time should be greater than current time');
+    require(
+      endTime > block.timestamp + 1 hours,
+      'End time should be at least 1 hour in the future'
+    );
     require(bytes(description).length > 0, 'Description should be greater than zero');
     require(bytes(imageUrl).length > 0, 'ImageUrl should be greater than zero');
 
@@ -74,7 +91,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     nftX.description = description;
     nftX.owner = msg.sender;
     nftX.price = price;
-    nftX.timestamp = currentTime();
+    nftX.timestamp = block.timestamp;
     nftX.endTime = endTime;
     nftExists[nftX.id] = true;
     nfts[nftX.id] = nftX;
@@ -91,11 +108,15 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   ) public {
     require(nftExists[nftId], 'Nft does not exist');
     require(msg.sender == nfts[nftId].owner, 'Only the owner can edit this NFT');
-    require(price > 0 ether, 'Price must be greater than zero');
+    require(price > 0, 'Price must be greater than zero');
     require(bytes(name).length > 0, 'Name cannot be empty');
     require(bytes(description).length > 0, 'Description cannot be empty');
     require(bytes(imageUrl).length > 0, 'ImageUrl cannot be empty');
-    require(endTime > currentTime(), 'End time should be greater than current time');
+    require(
+      endTime > block.timestamp + 1 hours,
+      'End time should be at least 1 hour in the future'
+    );
+
     nfts[nftId].name = name;
     nfts[nftId].description = description;
     nfts[nftId].imageUrl = imageUrl;
@@ -104,29 +125,29 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   }
 
   // Delete Nfts
-  function deleteNft(uint256 id) public {
-    require(nftExists[id], 'Nft does not exist');
-    require(msg.sender == nfts[id].owner || msg.sender == owner(), 'Unauthorized entity');
-    require(!nfts[id].minted, 'Nft already minted');
-    require(!nfts[id].deleted, 'Nft already deleted');
-    require(refundNfts(id), 'Nft refund failed');
+  function deleteNft(uint256 nftId) public {
+    require(nftExists[nftId], 'Nft does not exist');
+    require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');
+    require(!nfts[nftId].minted, 'Nft already minted');
+    require(!nfts[nftId].deleted, 'Nft already deleted');
+    require(refundNfts(nftId), 'Nft refund failed');
 
-    nfts[id].deleted = true;
+    nfts[nftId].deleted = true;
   }
 
   // Refund Nfts
-  function refundNfts(uint256 id) internal returns (bool success) {
-    for (uint256 i = 0; i < sales[id].length; i++) {
-      sales[id][i].refunded = true;
-      payTo(sales[id][i].owner, sales[id][i].price);
-      balance -= sales[id][i].price;
+  function refundNfts(uint256 nftId) internal returns (bool success) {
+    for (uint256 i = 0; i < sales[nftId].length; i++) {
+      sales[nftId][i].refunded = true;
+      payTo(sales[nftId][i].owner, sales[nftId][i].price);
+      balance -= sales[nftId][i].price;
     }
     return true;
   }
 
   //Get single NFT
-  function getSingleNft(uint256 id) public view returns (NftStruct memory) {
-    return nfts[id];
+  function getSingleNft(uint256 nftId) public view returns (NftStruct memory) {
+    return nfts[nftId];
   }
 
   // Get all Nfts
@@ -181,8 +202,11 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     require(nfts[nftId].minted == false, 'Nft already minted');
     require(nfts[nftId].endTime > currentTime(), 'Nft sale has ended');
 
+    address previousOwner = nfts[nftId].owner;
+    nfts[nftId].owner = msg.sender;
+
     SalesStruct memory sale;
-    sale.id = sales[nftId].length + 1;
+    sale.id = sales[nftId].length;
     sale.nftId = nftId;
     sale.owner = msg.sender;
     sale.price = nfts[nftId].price;
@@ -191,12 +215,20 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     sales[nftId].push(sale);
 
     balance += msg.value;
-    nfts[nftId].owner = msg.sender;
 
-    // Automatically mint the NFT when purchased
-    mintNft(nftId); // Call to mint the NFT
+    // Mint the NFT to the buyer instead of transferring
+    _safeMint(msg.sender, nftId);
+    nfts[nftId].minted = true;
 
     _totalSales.increment();
+
+    // Emit an event for the sale
+    emit NftSold(nftId, previousOwner, msg.sender, nfts[nftId].price);
+
+    // Refund excess payment
+    if (msg.value > nfts[nftId].price) {
+      payTo(msg.sender, msg.value - nfts[nftId].price);
+    }
   }
 
   // Get Sales of a Nft
@@ -250,21 +282,33 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   }
 
   //Payout
-  function payout(uint256 nftId) public {
+  function payout(uint256 nftId) public nonReentrant {
     require(nftExists[nftId], 'Nft does not exist');
-    require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');  
+    require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');
     require(!nfts[nftId].deleted, 'Nft already deleted');
     require(!nfts[nftId].paidOut, 'Nft already paid out');
     require(nfts[nftId].minted, 'Nft not minted');
 
     uint256 revenue = nfts[nftId].price;
-    uint256 serviceAmount = (revenue * servicePct) / 100;
+    require(balance >= revenue, 'Insufficient contract balance');
+
+    uint256 serviceAmount = (revenue * servicePct) / 10000; // Assuming servicePct is in basis points (e.g., 500 for 5%)
     uint256 payoutAmount = revenue - serviceAmount;
 
+    // Payout to NFT owner
     payTo(nfts[nftId].owner, payoutAmount);
+
+    // Service fee payout to contract owner
     payTo(owner(), serviceAmount);
-    balance = 0;
+
+    // Mark the NFT as paid out
     nfts[nftId].paidOut = true;
+
+    // Reduce the contract balance
+    balance -= revenue;
+
+    // Emit payout event
+    emit NftPaidOut(nftId, nfts[nftId].owner, payoutAmount, serviceAmount);
   }
 
   //Mint Nft
@@ -275,7 +319,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     for (uint256 i = 0; i < sales[nftId].length; i++) {
       _totalTokens.increment();
       sales[nftId][i].minted = true;
-      _mint(sales[nftId][i].owner, _totalTokens.current());
+      _mint(sales[nftId][i].owner, nftId); // Use nftId as the tokenId
     }
 
     nfts[nftId].minted = true;
@@ -285,7 +329,10 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   // Transfer ownership
   function transferOwnership(uint256 nftId, address newOwner) public {
     require(nftExists[nftId], 'Nft does not exist');
-    require(msg.sender == nfts[nftId].owner || msg.sender == owner(), 'Unauthorized entity');
+    require(
+      msg.sender == nfts[nftId].owner || msg.sender == owner(),
+      'Only the owner can transfer ownership'
+    );
 
     _transfer(nfts[nftId].owner, newOwner, nftId);
     nfts[nftId].owner = newOwner;
@@ -299,6 +346,6 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
 
   // Get current time
   function currentTime() internal view returns (uint256) {
-    return (block.timestamp * 1000) + 1000;
+    return block.timestamp;
   }
 }
