@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 const { ethers } = require('hardhat')
-const { expectRevert, expectEvent, BN } = require('@openzeppelin/test-helpers')
+
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
 const toWei = (num) => ethers.parseEther(num.toString())
@@ -84,15 +84,9 @@ describe('Nftmart Contract', () => {
 
   describe('payout', () => {
     beforeEach(async () => {
-      await contract.connect(owner).createNft(name, description, imageUrl, endTime, toWei(price));
-      await contract.connect(buyer1).buyNft(nftId, { value: toWei(price) });
-      
-      // Ensure the contract has sufficient balance
-      await owner.sendTransaction({
-        to: contract.address,
-        value: ethers.parseEther("10.0") // Send 10 ETH to the contract
-      });
-    });
+      await contract.connect(owner).createNft(name, description, imageUrl, endTime, toWei(price))
+      await contract.connect(buyer1).buyNft(nftId, { value: toWei(price) })
+    })
 
     it('should allow the NFT owner to payout', async () => {
       const initialBalance = await ethers.provider.getBalance(owner.address)

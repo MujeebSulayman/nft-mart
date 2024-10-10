@@ -147,6 +147,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
 
   //Get single NFT
   function getSingleNft(uint256 nftId) public view returns (NftStruct memory) {
+    require(nftExists[nftId], 'Nft does not exist');
     return nfts[nftId];
   }
 
@@ -199,7 +200,6 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     require(nftExists[nftId], 'Nft does not exist');
     require(msg.value >= nfts[nftId].price, 'Insufficient funds');
     require(nfts[nftId].deleted == false, 'Nft already deleted');
-    require(nfts[nftId].minted == false, 'Nft already minted');
     require(nfts[nftId].endTime > currentTime(), 'Nft sale has ended');
 
     address previousOwner = nfts[nftId].owner;
@@ -216,16 +216,17 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
 
     balance += msg.value;
 
-    // Mint the NFT to the buyer instead of transferring
-    _safeMint(msg.sender, nftId);
-    nfts[nftId].minted = true;
+    if (!nfts[nftId].minted) {
+      _mint(msg.sender, nftId); // Mint the NFT if not already minted
+      nfts[nftId].minted = true;
+    } else {
+      _transfer(previousOwner, msg.sender, nftId); // Transfer if already minted
+    }
 
     _totalSales.increment();
 
-    // Emit an event for the sale
     emit NftSold(nftId, previousOwner, msg.sender, nfts[nftId].price);
 
-    // Refund excess payment
     if (msg.value > nfts[nftId].price) {
       payTo(msg.sender, msg.value - nfts[nftId].price);
     }
@@ -292,22 +293,18 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     uint256 revenue = nfts[nftId].price;
     require(balance >= revenue, 'Insufficient contract balance');
 
-    uint256 serviceAmount = (revenue * servicePct) / 10000; // Assuming servicePct is in basis points (e.g., 500 for 5%)
+    uint256 serviceAmount = (revenue * servicePct) / 10000;
     uint256 payoutAmount = revenue - serviceAmount;
 
     // Payout to NFT owner
     payTo(nfts[nftId].owner, payoutAmount);
 
-    // Service fee payout to contract owner
     payTo(owner(), serviceAmount);
 
-    // Mark the NFT as paid out
     nfts[nftId].paidOut = true;
 
-    // Reduce the contract balance
     balance -= revenue;
 
-    // Emit payout event
     emit NftPaidOut(nftId, nfts[nftId].owner, payoutAmount, serviceAmount);
   }
 
