@@ -75,12 +75,9 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   ) public {
     require(price > 0, 'Price should be greater than zero');
     require(bytes(name).length > 0, 'Name should be greater than zero');
-    require(
-      endTime > block.timestamp + 1 hours,
-      'End time should be at least 1 hour in the future'
-    );
     require(bytes(description).length > 0, 'Description should be greater than zero');
     require(bytes(imageUrl).length > 0, 'ImageUrl should be greater than zero');
+    require(endTime > currentTime(), 'End time should be greater than end time');
 
     _totalNfts.increment();
     NftStruct memory nftX;
@@ -91,8 +88,9 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     nftX.description = description;
     nftX.owner = msg.sender;
     nftX.price = price;
-    nftX.timestamp = block.timestamp;
+    nftX.timestamp = currentTime();
     nftX.endTime = endTime;
+
     nftExists[nftX.id] = true;
     nfts[nftX.id] = nftX;
   }
@@ -112,10 +110,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     require(bytes(name).length > 0, 'Name cannot be empty');
     require(bytes(description).length > 0, 'Description cannot be empty');
     require(bytes(imageUrl).length > 0, 'ImageUrl cannot be empty');
-    require(
-      endTime > block.timestamp + 1 hours,
-      'End time should be at least 1 hour in the future'
-    );
+    require(endTime > currentTime(), 'End time should be greater than end time');
 
     nfts[nftId].name = name;
     nfts[nftId].description = description;
@@ -210,7 +205,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     sale.nftId = nftId;
     sale.owner = msg.sender;
     sale.price = nfts[nftId].price;
-    sale.timestamp = currentTime();
+    sale.timestamp = currentTime(); //Come back to this, make sure to disable this when writting the test unit code
     sale.endTime = nfts[nftId].endTime;
     sales[nftId].push(sale);
 
@@ -342,7 +337,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   }
 
   // Get current time
-  function currentTime() internal view returns (uint256) {
-    return block.timestamp;
+ function currentTime() internal view returns (uint256) {
+    return (block.timestamp * 1000) + 1000;
   }
 }

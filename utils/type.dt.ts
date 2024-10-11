@@ -1,56 +1,34 @@
-export interface TruncateParams {
-  text: string
-  startChars: number
-  endChars: number
-  maxLength: number
-}
-
-export interface EventParams {
+export interface NftParams {
   id?: number
-  title: string
-  imageUrl: string
+  name: string
   description: string
-  ticketCost: number | string
-  capacity: number | string
-  startsAt: number | string
-  endsAt: number | string
+  imageUrl: string
+  endTime: string | number
+  price: string | number
 }
 
-export interface EventStruct {
+export interface SalesStruct {
   id: number
-  title: string
+  nftId: number
+  owner: string
+  price: number
+  timestamp: number
+  endTime: number
+  minted: boolean
+  refunded: boolean
+}
+
+export interface NftStruct {
+  id: number
+  name: string
   imageUrl: string
   description: string
-  owner: string
-  sales: number
-  ticketCost: number
-  capacity: number
-  seats: number
-  startsAt: number
-  endsAt: number
+  owner: number
+  price: number
   timestamp: number
+  endTime: number
   deleted: boolean
+  minted: boolean
   paidOut: boolean
   refunded: boolean
-  minted: boolean
-}
-
-export interface TicketStruct {
-  id: number
-  eventId: number
-  owner: string
-  ticketCost: number
-  timestamp: number
-  refunded: boolean
-  minted: boolean
-}
-
-export interface GlobalState {
-  event: EventStruct | null
-  tickets: TicketStruct[]
-  ticketModal: string
-}
-
-export interface RootState {
-  globalStates: GlobalState
 }
