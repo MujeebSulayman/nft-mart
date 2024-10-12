@@ -228,7 +228,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   }
 
   // Get Sales of a Nft
-  function getSales(uint256 nftId) public view returns (SalesStruct[] memory Sales) {
+  function getSale(uint256 nftId) public view returns (SalesStruct[] memory) {
     return sales[nftId];
   }
 

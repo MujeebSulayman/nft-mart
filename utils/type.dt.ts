@@ -7,7 +7,7 @@ export interface NftParams {
   price: string | number
 }
 
-export interface SalesStruct {
+export interface SaleStruct {
   id: number
   nftId: number
   owner: string
@@ -32,3 +32,4 @@ export interface NftStruct {
   paidOut: boolean
   refunded: boolean
 }
+
