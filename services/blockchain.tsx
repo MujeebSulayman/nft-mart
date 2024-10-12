@@ -162,6 +162,38 @@ const getMySales = async (): Promise<SaleStruct[]> => {
   return structuredSale(sales)
 }
 
+const transferOwnership = async (nftId: number, newOwner: string): Promise<void> => {
+  if (!ethereum) {
+    reportError('Kindly install a wallet provider')
+    return Promise.reject(new Error('Browser provider not available on your device'))
+  }
+  try {
+    const contract = await getEthereumContract()
+    tx = await contract.transferOwnership(nftId, newOwner)
+    await tx.wait()
+    return Promise.resolve(tx)
+  } catch (error) {
+    reportError(error)
+    return Promise.reject(error)
+  }
+}
+
+const mintNft = async (nftId: number): Promise<void> => {
+  if (!ethereum) {
+    reportError('Kindly install a wallet provider')
+    return Promise.reject(new Error('Browser provider not available on your device'))
+  }
+  try {
+    const contract = await getEthereumContract()
+    tx = await contract.mintNft(nftId)
+    await tx.wait()
+    return Promise.resolve(tx)
+  } catch (error) {
+    reportError(error)
+    return Promise.reject(error)
+  }
+}
+
 const structuredNft = (nfts: NftStruct[]): NftStruct[] =>
   nfts
     .map((nft) => ({
@@ -206,4 +238,6 @@ export {
   getSale,
   getAllSales,
   getMySales,
+  transferOwnership,
+  mintNft,
 }

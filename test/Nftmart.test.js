@@ -14,7 +14,7 @@ describe('Nftmart', function () {
 
     // Deploy the contract with a 5% service fee
     const NftmartFactory = await ethers.getContractFactory('Nftmart')
-    nftmart = await NftmartFactory.deploy(500)
+    nftmart = await NftmartFactory.deploy(500) // 500 represents a 5% service fee
     await nftmart.waitForDeployment()
   })
 
@@ -101,10 +101,16 @@ describe('Nftmart', function () {
       const initialBalance = await ethers.provider.getBalance(user1.getAddress())
 
       // Ensure we're using the correct account (the NFT creator) for payout
-      await nftmart.connect(user1).payout(nftId)
+      const tx = await nftmart.connect(user1).payout(nftId)
+      const receipt = await tx.wait()
 
       const finalBalance = await ethers.provider.getBalance(user1.getAddress())
-      expect(finalBalance).to.be.gt(initialBalance)
+      const payoutAmount = ethers.parseEther('1')
+
+      const gasUsed = receipt.gasUsed * receipt.effectiveGasPrice
+
+      // Account for gas costs when checking the balance change
+      expect(finalBalance).to.equal(initialBalance.add(payoutAmount).sub(gasUsed))
     })
 
     it('Should revert if NFT is already paid out', async function () {
@@ -124,7 +130,4 @@ describe('Nftmart', function () {
       await expect(nftmart.connect(user2).payout(nftId)).to.be.revertedWith('Unauthorized entity')
     })
   })
-
-  // Additional test cases can be added here for other functions
-  // such as updateNft, deleteNft, getAllNfts, getMyNfts, getSales, etc.
 })

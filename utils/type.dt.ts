@@ -23,7 +23,7 @@ export interface NftStruct {
   name: string
   imageUrl: string
   description: string
-  owner: number
+  owner: string
   price: number
   timestamp: number
   endTime: number
@@ -32,4 +32,3 @@ export interface NftStruct {
   paidOut: boolean
   refunded: boolean
 }
-
