@@ -1,45 +1,35 @@
-import Hero from '@/components/Hero'
 import NftList from '@/components/NftList'
 import { getAllNfts } from '@/services/blockchain'
 import { NftStruct } from '@/utils/type.dt'
 import { NextPage } from 'next'
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-const Page: NextPage = () => {
-  const [nfts, setNfts] = useState<NftStruct[]>([])
-  const [collection, setCollection] = useState<NftStruct[]>([])
+const AllNftsPage: NextPage = () => {
   const [end, setEnd] = useState<number>(12)
   const [count] = useState<number>(12)
+  const [nfts, setNfts] = useState<NftStruct[]>([])
+  const [collection, setCollection] = useState<NftStruct[]>([])
 
   useEffect(() => {
-    const fetchNfts = async () => {
-      try {
-        const fetchedNfts = await getAllNfts()
-        setNfts(fetchedNfts)
-        console.log(fetchedNfts)
-      } catch (error) {
-        console.log('Failed to fetch NFTs', error)
-        setNfts([])
-      }
+    const fetchData = async () => {
+      const fetcedNfts: NftStruct[] = await getAllNfts()
+      setNfts(fetcedNfts)
     }
-    fetchNfts()
+
+    fetchData()
   }, [])
 
   useEffect(() => {
     setCollection(nfts.slice(0, end))
   }, [nfts, end])
-
   return (
-    <div className="bg-black min-h-screen flex flex-col">
+    <div className="bg-black min-h-screen">
       <Head>
-        <title>NFT Mart</title>
+        <title>Nft Mart | All Nfts</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Hero />
-
-    
       <main className="container mx-auto px-4 py-8">
         <NftList nfts={collection} />
         {collection.length > 0 && nfts.length > collection.length && (
@@ -53,9 +43,8 @@ const Page: NextPage = () => {
           </div>
         )}
       </main>
-      </div>
-    
+    </div>
   )
 }
 
-export default Page
+export default AllNftsPage

@@ -1,53 +1,117 @@
-import Link from 'next/link'
 import React from 'react'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
 
 const Hero: React.FC = () => {
   return (
-    <main className="lg:w-2/3 w-full mx-auto relative shadow-md px-5 py-7 bg-white">
-      <div className="relative pb-8 ">
-        <div className="mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="sm:text-center lg:text-left">
-            <h1 className="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl sm:tracking-tight md:text-6xl md:tracking-tight">
-              <span className="block xl:inline text-[#010125]">Bring Events To The</span>
-              <br />
-              <span className="block text-orange-500 xl:inline"> Web3 Marketplace</span>
-            </h1>
+    <div className="relative overflow-hidden min-h-screen flex items-center bg-black">
+      {/* Dynamic background using motion */}
+      <div className="absolute inset-0 z-0">
+        {[...Array(10)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute bg-purple-400 rounded-full opacity-20"
+            style={{
+              width: 150,
+              height: 150,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              x: [0, 20, -20, 0],
+              y: [0, 20, -20, 0],
+              scale: [1, 1.5, 1],
+              rotate: [0, 360, 0],
+            }}
+            transition={{
+              duration: 10,
+              ease: 'easeInOut',
+              repeat: Infinity,
+              repeatType: 'mirror',
+            }}
+          />
+        ))}
+      </div>
 
-            <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-              Welcome to Web3 event market place, create vibrant expositions conneting enthusiasts
-              with experts, products and services in a decentralized anonymous enviroment.
-            </p>
-
-            <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+        <div className="text-center">
+          <motion.h1
+            className="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl lg:text-7xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <span className="block">Explore Unique Digital Art</span>{' '}
+            <span className="block text-purple-300">NFT Marketplace</span>
+          </motion.h1>
+          <motion.p
+            className="mt-3 max-w-md mx-auto text-base text-gray-300 sm:text-lg md:mt-5 md:text-xl lg:text-2xl md:max-w-3xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            Discover, collect, and sell extraordinary NFTs on the leading marketplace for digital
+            art and collectibles.
+          </motion.p>
+          <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               <Link
-                href={'/events/create'}
-                className="bg-[#010125] p-2 rounded-full py-3 px-4
-                text-white border hover:bg-transparent hover:text-[#010125]
-                hover:border-[#010125] duration-300 transition-all"
+                href="/nfts/create"
+                className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 md:py-4 md:text-lg md:px-10"
               >
-                Add Events
+                Create NFT
               </Link>
-
-              <button
-                className="bg-orange-500 p-2 rounded-full py-3 px-4
-                text-white mx-4 hover:bg-transparent border hover:text-orange-500
-                hover:border-orange-500 duration-300 transition-all"
+            </motion.div>
+            <motion.div
+              className="mt-3 sm:mt-0 sm:ml-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <Link
+                href="/nfts"
+                className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-purple-600 bg-purple-100 hover:bg-purple-200 md:py-4 md:text-lg md:px-10"
               >
-                Explore Marketplace
-              </button>
-            </div>
+                Explore NFTs
+              </Link>
+            </motion.div>
           </div>
         </div>
-      </div>
 
-      <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-        <img
-          className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-          src="https://img.freepik.com/free-vector/business-partners-handshake_74855-5222.jpg?t=st=1661167225~exp=1661167825~hmac=33b5b2e34224ea0dfd65c9f3a054e1e1eb411626fe15e0becbfe343ab31f3ba1"
-          alt=""
-        />
+        {/* NFT Categories */}
+        <motion.div
+          className="mt-12 flex flex-row justify-center flex-wrap gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          {['Art', 'Music', 'Games', 'Collectibles'].map((category) => (
+            <div key={category} className="flex items-center justify-center">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-center h-10 w-10 rounded-md bg-purple-500 text-white">
+                  {/* Placeholder for category icons */}
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-2">
+                <dt className="text-sm leading-6 font-medium text-white">{category}</dt>
+              </div>
+            </div>
+          ))}
+        </motion.div>
       </div>
-    </main>
+    </div>
   )
 }
 

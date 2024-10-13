@@ -1,8 +1,21 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import Image from 'next/image'
 import React from 'react'
+import { motion } from 'framer-motion'
 
 const ConnectBtn: React.FC<{ networks?: boolean }> = ({ networks }) => {
+  const buttonVariants = {
+    hover: { scale: 1.05 },
+    tap: { scale: 0.95 },
+  }
+
+  const buttonClasses = `
+    bg-gray-800 hover:bg-gray-700 text-white
+    py-2 px-4 rounded-md
+    transition duration-300 ease-in-out
+    text-sm font-medium
+  `
+
   return (
     <ConnectButton.Custom>
       {({
@@ -35,42 +48,48 @@ const ConnectBtn: React.FC<{ networks?: boolean }> = ({ networks }) => {
             {(() => {
               if (!connected) {
                 return (
-                  <button
-                    className="bg-transparent border border-orange-500 hover:bg-orange-600
-                        py-2 px-6 text-orange-500 hover:text-white rounded-full
-                        transition duration-300 ease-in-out"
+                  <motion.button
+                    className={buttonClasses}
                     onClick={openConnectModal}
                     type="button"
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
                   >
                     Connect Wallet
-                  </button>
+                  </motion.button>
                 )
               }
 
               if (chain.unsupported && networks) {
                 return (
-                  <button
-                    className="bg-transparent border border-orange-500 hover:bg-orange-600
-                        py-2 px-6 text-orange-500 hover:text-white rounded-full
-                        transition duration-300 ease-in-out"
+                  <motion.button
+                    className="bg-red-600 hover:bg-red-700 text-white
+                        py-2 px-4 rounded-md
+                        transition duration-300 ease-in-out
+                        text-sm font-medium"
                     onClick={openChainModal}
                     type="button"
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
                   >
                     Wrong network
-                  </button>
+                  </motion.button>
                 )
               }
 
               return (
                 <div style={{ display: 'flex', gap: 12 }}>
                   {networks && (
-                    <button
+                    <motion.button
                       onClick={openChainModal}
                       style={{ display: 'flex', alignItems: 'center' }}
-                      className="bg-transparent border border-orange-500 hover:bg-orange-600
-                    py-2 px-6 text-orange-500 hover:text-white rounded-full
-                    transition duration-300 ease-in-out"
+                      className={buttonClasses}
                       type="button"
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
                     >
                       {chain.hasIcon && (
                         <div
@@ -94,21 +113,19 @@ const ConnectBtn: React.FC<{ networks?: boolean }> = ({ networks }) => {
                         </div>
                       )}
                       {chain.name}
-                    </button>
+                    </motion.button>
                   )}
 
-                  <button
-                    className="bg-transparent border border-orange-500 hover:bg-orange-600
-                    py-2 px-6 text-orange-500 hover:text-white rounded-full
-                    transition duration-300 ease-in-out"
+                  <motion.button
+                    className={buttonClasses}
                     onClick={openAccountModal}
                     type="button"
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
                   >
                     {account.displayName}
-                    {/* {account.displayBalance
-                      ? ` (${account.displayBalance})`
-                      : ''} */}
-                  </button>
+                  </motion.button>
                 </div>
               )
             })()}

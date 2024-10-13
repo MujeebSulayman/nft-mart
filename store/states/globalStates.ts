@@ -1,7 +1,7 @@
 import { GlobalState } from '@/utils/type.dt'
 
 export const globalStates: GlobalState = {
-  event: null,
-  tickets: [],
-  ticketModal: 'scale-0',
+  nft: null,
+  sales: [],
+  saleModal: 'scale-0',
 }

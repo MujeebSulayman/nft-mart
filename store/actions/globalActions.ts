@@ -1,14 +1,16 @@
-import { EventStruct, GlobalState, TicketStruct } from '@/utils/type.dt'
+import { GlobalState, NftStruct, SaleStruct } from '@/utils/type.dt'
 import { PayloadAction } from '@reduxjs/toolkit'
 
 export const globalActions = {
-  setTickets: (state: GlobalState, action: PayloadAction<TicketStruct[]>) => {
-    state.tickets = action.payload
+  setSales: (states: GlobalState, action: PayloadAction<SaleStruct[]>) => {
+    states.sales = action.payload
   },
-  setEvent: (state: GlobalState, action: PayloadAction<EventStruct | null>) => {
-    state.event = action.payload
+
+  setNft: (states: GlobalState, action: PayloadAction<NftStruct | null>) => {
+    states.nft = action.payload
   },
-  setTicketModal: (state: GlobalState, action: PayloadAction<string>) => {
-    state.ticketModal = action.payload
+
+  setSaleModal: (states: GlobalState, action: PayloadAction<string>) => {
+    states.saleModal = action.payload
   },
 }

@@ -1,3 +1,10 @@
+export interface TruncateParams {
+  text: string
+  startChars: number
+  endChars: number
+  maxLength: number
+}
+
 export interface NftParams {
   id?: number
   name: string
@@ -31,4 +38,14 @@ export interface NftStruct {
   minted: boolean
   paidOut: boolean
   refunded: boolean
+}
+
+export interface GlobalState {
+  nft: NftStruct | null
+  sales: SaleStruct[]
+  saleModal: string
+}
+
+export interface RootState {
+  globalStates: GlobalState
 }
