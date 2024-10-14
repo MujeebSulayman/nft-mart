@@ -13,7 +13,6 @@ const BuyNft: React.FC<{ nft: NftStruct }> = ({ nft }) => {
   const router = useRouter()
   const { saleModal } = useSelector((state: RootState) => state.globalStates)
   const { address } = useAccount()
-  const { sales, setSales } = useState<number | string>('')
   const { setSaleModal } = globalActions
   const dispatch = useDispatch()
   const modalRef = useRef<HTMLDivElement>(null)
@@ -51,7 +50,7 @@ const BuyNft: React.FC<{ nft: NftStruct }> = ({ nft }) => {
         }),
         {
           pending: 'Approve transaction...',
-          success: 'Ticket purchased successfully',
+          success: 'Nft purchased successfully',
           error: 'Encountered an error',
         }
       )
@@ -72,7 +71,7 @@ const BuyNft: React.FC<{ nft: NftStruct }> = ({ nft }) => {
       >
         <div className="flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-indigo-600">Buy NFT</h2>
+            <h2 className="text-2xl font-bold text-indigo-600">Buy Nft</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -80,9 +79,23 @@ const BuyNft: React.FC<{ nft: NftStruct }> = ({ nft }) => {
               <FaTimes className="text-xl" />
             </button>
           </div>
-          <form onSubmit={handleSubmit}  space-y-6>
-            <div></div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex items-center space-x-2">
+              <h3 className="text-xl font-bold">Price: {nft.price} ETH</h3>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+              >
+                Buy Now
+              </button>
+            </div>
           </form>
+
+          <div className="mt-6 text-center text-sm text-gray-500">
+            <p>You are purchasing NFT:</p>
+            <p className="font-semibold text-indigo-600">{nft.name}</p>
+          </div>
         </div>
       </div>
     </div>
