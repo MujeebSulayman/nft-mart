@@ -7,7 +7,7 @@ const NftList: React.FC<{ nfts: NftStruct[] }> = ({ nfts }) => {
   return (
     <section className="mt-10">
       <main className="lg-w-[70%] w-full mx-auto">
-        <h4 className="text-3xl font-bold text-center pt-[3rem]">All NFTs</h4>
+        <h4 className="text-3xl font-bold text-center mt-[3rem]">All NFTs</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mx-auto w-full justify-items-center">
           {nfts.map((nft, i) => (
             <Card key={i} nft={nft} />
