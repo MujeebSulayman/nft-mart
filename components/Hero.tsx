@@ -24,8 +24,10 @@ const Hero: React.FC = () => {
       size: number
       speedX: number
       speedY: number
-
       constructor() {
+        if (!canvas) {
+          throw new Error('Canvas is not initialized')
+        }
         this.x = Math.random() * canvas.width
         this.y = Math.random() * canvas.height
         this.size = Math.random() * 9 + 1 // Reduced size range
@@ -36,12 +38,11 @@ const Hero: React.FC = () => {
       update() {
         this.x += this.speedX
         this.y += this.speedY
-
         // Gentle bounce off edges
-        if (this.x + this.size > canvas.width || this.x - this.size < 0) {
+        if (canvas && (this.x + this.size > canvas.width || this.x - this.size < 0)) {
           this.speedX *= -0.5 // Reduce speed after bouncing
         }
-        if (this.y + this.size > canvas.height || this.y - this.size < 0) {
+        if (canvas && (this.y + this.size > canvas.height || this.y - this.size < 0)) {
           this.speedY *= -0.5 // Reduce speed after bouncing
         }
       }
@@ -60,7 +61,7 @@ const Hero: React.FC = () => {
     }
 
     function animate() {
-      if (!ctx) return
+      if (!ctx || !canvas) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       bubbles.forEach((bubble) => {
         bubble.update()
