@@ -17,7 +17,7 @@ const Hero: React.FC = () => {
     canvas.height = window.innerHeight
 
     const bubbles: Bubble[] = []
-    const bubbleCount = 40 // Reduced from 50
+    const bubbleCount = 25 // Reduced from 50
 
     class Bubble {
       x: number
@@ -86,7 +86,7 @@ const Hero: React.FC = () => {
   }, [])
 
   return (
-    <div className="relative bg-black text-purple-100 min-h-screen flex items-center justify-center px-4 overflow-hidden">
+    <div className="relative bg-black pt-[5rem] text-purple-100 min-h-screen flex items-center justify-center px-4 overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 z-0" />
       <div className="relative z-10 w-full max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row items-center mt-12 md:mt-24">
