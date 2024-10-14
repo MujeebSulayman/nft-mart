@@ -2,6 +2,8 @@ import { ethers } from 'ethers'
 import address from '../contracts/contractAddress.json'
 import abi from '../artifacts/contracts/Nftmart.sol/Nftmart.json'
 import { NftParams, NftStruct, SaleStruct } from '@/utils/type.dt'
+import { store } from '@/store'
+import { globalActions } from '@/store/globalSlices'
 
 const toWei = (num: number) => ethers.parseEther(num.toString())
 const fromWei = (num: number) => ethers.formatEther(num)
@@ -10,8 +12,28 @@ let ethereum: any
 let tx: any
 
 if (typeof window !== 'undefined') ethereum = (window as any).ethereum
+const { setNft, setSales } = globalActions
 
 // const { setNfts, setSales } = globalActions //Take a look at this later
+
+// const getEthereumContract = async () => {
+//   const accounts = await ethereum?.request?.({ method: 'eth_accounts' })
+
+//   if (accounts?.length > 0) {
+//     const provider = new ethers.BrowserProvider(ethereum)
+//     const signer = await provider.getSigner()
+//     const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
+
+//     return contracts
+//   } else {
+//     const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL)
+//     const wallet = ethers.Wallet.createRandom()
+//     const signer = wallet.connect(provider)
+//     const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
+
+//     return contracts
+//   }
+// }
 
 const getEthereumContract = async () => {
   const accounts = await ethereum?.request?.({ method: 'eth_accounts' })
@@ -23,7 +45,10 @@ const getEthereumContract = async () => {
 
     return contracts
   } else {
-    const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL)
+    // Use Infura or Alchemy as the provider
+    const provider = new ethers.JsonRpcProvider(
+      `https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`
+    )
     const wallet = ethers.Wallet.createRandom()
     const signer = wallet.connect(provider)
     const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
@@ -103,7 +128,10 @@ const payout = async (nftId: number): Promise<void> => {
     const contract = await getEthereumContract()
     tx = await contract.payout(nftId)
     await tx.wait()
-    //()if i am interested in updating the page without reload using redux, the code should go here
+
+    const nftData: NftStruct = await getSingleNft(nftId)
+    store.dispatch(setNft(nftData))
+
     return Promise.resolve(tx)
   } catch (error) {
     reportError(error)
@@ -119,6 +147,13 @@ const buyNft = async (nft: NftStruct) => {
   try {
     const contract = await getEthereumContract()
     tx = await contract.buyNft(nft.id, { value: toWei(nft.price) })
+
+    const nftData: NftStruct = await getSingleNft(nft.id)
+    store.dispatch(setNft(nftData))
+
+    const salesData: SaleStruct[] = await getSale(nft.id)
+    store.dispatch(setSales(salesData))
+
     await tx.wait()
     return Promise.resolve(tx)
   } catch (error) {
@@ -145,10 +180,10 @@ const getMyNfts = async (): Promise<NftStruct[]> => {
   return structuredNft(nfts)
 }
 
-const getSale = async (nftId: number): Promise<SaleStruct> => {
+const getSale = async (nftId: number): Promise<SaleStruct[]> => {
   const contract = await getEthereumContract()
   const sale = await contract.getSale(nftId)
-  return structuredSale(sale)[0]
+  return structuredSale(sale)
 }
 
 const getAllSales = async (): Promise<SaleStruct[]> => {
@@ -156,6 +191,7 @@ const getAllSales = async (): Promise<SaleStruct[]> => {
   const sales = await contract.getAllSales()
   return structuredSale(sales)
 }
+
 const getMySales = async (): Promise<SaleStruct[]> => {
   const contract = await getEthereumContract()
   const sales = await contract.getMySales()

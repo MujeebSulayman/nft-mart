@@ -94,18 +94,11 @@ const Header: React.FC = () => {
                 </div>
                 <div className="mt-6">
                   <nav className="grid gap-y-8">
-                    <NavLink href="/nfts" mobile>
-                      Explore
-                    </NavLink>
-                    <NavLink href="/nfts/create" mobile>
-                      Create
-                    </NavLink>
-                    <NavLink href="/about" mobile>
-                      About
-                    </NavLink>
-                    <NavLink href="/contact" mobile>
-                      Contact
-                    </NavLink>
+                    <NavLink href="/explore">Explore</NavLink>
+                    <NavLink href="/nfts">All Nfts</NavLink>
+                    <NavLink href="nfts/create">Create</NavLink>
+                    <NavLink href="/about">About</NavLink>
+                    <NavLink href="/contact">Contact</NavLink>
                   </nav>
                 </div>
               </div>

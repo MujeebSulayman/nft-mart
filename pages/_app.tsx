@@ -5,6 +5,8 @@ import type { AppProps } from 'next/app'
 import { useEffect, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
 import '@rainbow-me/rainbowkit/styles.css'
+import { store } from '@/store'
+import { Provider } from 'react-redux'
 
 export default function App({ Component, pageProps }: AppProps) {
   const [showChild, setShowChild] = useState<boolean>(false)
@@ -18,6 +20,8 @@ export default function App({ Component, pageProps }: AppProps) {
   } else {
     return (
       <Providers pageProps={pageProps}>
+        <Provider store={store}>
+
         <div className="bg-black min-h-screen flex flex-col text-white">
           <Header />
           <Component {...pageProps} />
@@ -37,6 +41,7 @@ export default function App({ Component, pageProps }: AppProps) {
             © 2024 Nft Mart. All rights reserved.
           </footer>
         </div>
+        </Provider>
       </Providers>
     )
   }

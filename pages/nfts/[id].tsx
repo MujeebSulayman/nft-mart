@@ -1,6 +1,6 @@
 import { calculateDateDifference, formatDate, truncate } from '@/utils/helper'
 import { NftStruct, RootState, SaleStruct } from '@/utils/type.dt'
-import { NextPage } from 'next'
+import { GetServerSidePropsContext, NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,9 +8,12 @@ import { globalActions } from '@/store/globalSlices'
 import Head from 'next/head'
 import { BsCalendar, BsClock, BsPeople, BsGeoAlt } from 'react-icons/bs'
 import { FaEthereum } from 'react-icons/fa'
-
-import NftActions from '@/components/NftAction'
 import Identicon from 'react-identicons'
+import Moment from 'react-moment'
+import Link from 'next/link'
+import BuyNft from '@/components/BuyNft'
+import { getSale, getSingleNft } from '@/services/blockchain'
+import NftActions from '@/components/NftAction'
 
 interface ComponentProps {
   nftData: NftStruct
@@ -114,7 +117,7 @@ const Page: NextPage<ComponentProps> = ({ nftData, salesData }) => {
                   Buy Nft
                 </button>
               )}
-              {/* {address === nft.owner && <NftActions nft={nft}>} */}
+              {address === nft.owner && <NftActions nft={nft} />}
             </div>
           </div>
 
@@ -140,16 +143,46 @@ const Page: NextPage<ComponentProps> = ({ nftData, salesData }) => {
                       {sale.price.toFixed(2)} ETH
                     </span>
                   </div>
+
+                  <Moment fromNow className="text-sm text-gray-400">
+                    {sale.timestamp}
+                  </Moment>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6">
+              <Link
+                href={'/nfts/sales/' + nft.id}
+                className="block w-full text-center bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                View All Sales
+              </Link>
             </div>
           </div>
         </div>
       </main>
+
+      <BuyNft nft={nft} />
     </div>
   ) : (
-    <span></span>
+    <div className="flex justify-center items-center h-screen bg-black">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
+    </div>
   )
 }
 
 export default Page
+
+export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+  const { id } = context.query
+  const nftData: NftStruct = await getSingleNft(Number(id))
+  const salesData: SaleStruct[] = await getSale(Number(id))
+
+  return {
+    props: {
+      nftData: JSON.parse(JSON.stringify(nftData)),
+      salesData: JSON.parse(JSON.stringify(salesData)),
+    },
+  }
+}
