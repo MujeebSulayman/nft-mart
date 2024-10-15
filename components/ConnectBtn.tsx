@@ -2,6 +2,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import Image from 'next/image'
 import React from 'react'
 import { motion } from 'framer-motion'
+import { signIn } from 'next-auth/react'
 
 const ConnectBtn: React.FC<{ networks?: boolean }> = ({ networks }) => {
   const buttonVariants = {
@@ -15,6 +16,11 @@ const ConnectBtn: React.FC<{ networks?: boolean }> = ({ networks }) => {
     transition duration-300 ease-in-out
     text-sm font-medium
   `
+
+  const handleConnect = async (openConnectModal: () => void) => {
+    await openConnectModal()
+    await signIn('credentials', { redirect: false })
+  }
 
   return (
     <ConnectButton.Custom>
@@ -50,7 +56,7 @@ const ConnectBtn: React.FC<{ networks?: boolean }> = ({ networks }) => {
                 return (
                   <motion.button
                     className={buttonClasses}
-                    onClick={openConnectModal}
+                    onClick={() => handleConnect(openConnectModal)}
                     type="button"
                     variants={buttonVariants}
                     whileHover="hover"

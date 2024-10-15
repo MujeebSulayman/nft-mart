@@ -12,50 +12,18 @@ let ethereum: any
 let tx: any
 
 if (typeof window !== 'undefined') ethereum = (window as any).ethereum
-const { setNft, setSales } = globalActions
 
-// const { setNfts, setSales } = globalActions //Take a look at this later
-
-// const getEthereumContract = async () => {
-//   const accounts = await ethereum?.request?.({ method: 'eth_accounts' })
-
-//   if (accounts?.length > 0) {
-//     const provider = new ethers.BrowserProvider(ethereum)
-//     const signer = await provider.getSigner()
-//     const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
-
-//     return contracts
-//   } else {
-//     const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL)
-//     const wallet = ethers.Wallet.createRandom()
-//     const signer = wallet.connect(provider)
-//     const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
-
-//     return contracts
-//   }
-// }
+const {setNft, setSales} = globalActions
 
 const getEthereumContract = async () => {
-  const accounts = await ethereum?.request?.({ method: 'eth_accounts' })
+  const provider = new ethers.BrowserProvider(ethereum)
+  const signer = await provider.getSigner()
+  const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
 
-  if (accounts?.length > 0) {
-    const provider = new ethers.BrowserProvider(ethereum)
-    const signer = await provider.getSigner()
-    const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
-
-    return contracts
-  } else {
-    // Use Infura or Alchemy as the provider
-    const provider = new ethers.JsonRpcProvider(
-      `https://sepolia.infura.io/v3/${process.env.NEXT_PUBLIC_ALCHEMY_ID}`
-    )
-    const wallet = ethers.Wallet.createRandom()
-    const signer = wallet.connect(provider)
-    const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
-
-    return contracts
-  }
+  return contracts
 }
+
+
 
 const createNft = async (nft: NftParams): Promise<void> => {
   if (!ethereum) {
@@ -163,9 +131,16 @@ const buyNft = async (nft: NftStruct) => {
 }
 
 const getAllNfts = async (): Promise<NftStruct[]> => {
-  const contract = await getEthereumContract()
-  const nfts = await contract.getAllNfts()
-  return structuredNft(nfts)
+  try {
+    const contract = await getEthereumContract()
+    console.log('Contract instance:', contract)
+    const nfts = await contract.getAllNfts()
+    console.log('Raw NFTs data:', nfts)
+    return structuredNft(nfts)
+  } catch (error) {
+    console.error('Error in getAllNfts:', error)
+    throw error
+  }
 }
 
 const getSingleNft = async (nftId: number): Promise<NftStruct> => {

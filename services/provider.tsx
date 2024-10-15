@@ -13,14 +13,14 @@ import {
   coinbaseWallet,
   rainbowWallet,
 } from '@rainbow-me/rainbowkit/wallets'
-import { mainnet, polygonMumbai, sepolia, hardhat } from 'wagmi/chains'
+import { mainnet, sepolia, hardhat } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 import { Session } from 'next-auth'
 import { SessionProvider } from 'next-auth/react'
 
 const { chains, publicClient } = configureChains(
-  [mainnet, polygonMumbai, sepolia, hardhat],
+  [mainnet, sepolia, hardhat],
   [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID as string }), publicProvider()]
 )
 
@@ -45,13 +45,13 @@ const wagmiConfig = createConfig({
 })
 
 const demoAppInfo = {
-  appName: 'Dapp Funds dApp',
+  appName: 'Nft Mart',
 }
 
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
   statement: `
   Once you're signed in, you'll be able to access all of our dApp's features.
-  Thank you for partnering with CrowdFunding!`,
+  Thank you for partnering with Nft mart!`,
 })
 
 export function Providers({

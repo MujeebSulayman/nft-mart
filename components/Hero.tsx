@@ -106,7 +106,7 @@ const Hero: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              CryptoCanvas is the world's leading NFT marketplace. Explore, trade, and create unique
+              Nft Mart is the world's leading NFT marketplace. Explore, trade, and create unique
               digital assets on the blockchain.
             </motion.p>
             <motion.div

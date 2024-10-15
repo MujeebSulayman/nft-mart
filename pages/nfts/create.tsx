@@ -35,7 +35,8 @@ const Page: NextPage = () => {
         createNft(nft)
           .then((tx) => {
             console.log(tx)
-            resolve('NFT created successfully')
+            resetForm()
+            resolve(tx)
           })
           .catch((error) => {
             reject(error)
@@ -109,7 +110,7 @@ const Page: NextPage = () => {
               </label>
               <input
                 type="url"
-                name="imageurl"
+                name="imageUrl"
                 id="imageUrl"
                 className={inputClasses}
                 placeholder="https://example.com/image.jpg"

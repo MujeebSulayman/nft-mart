@@ -17,9 +17,13 @@ const Page: NextPage = () => {
       try {
         const fetchedNfts = await getAllNfts()
         setNfts(fetchedNfts)
-        console.log(fetchedNfts)
+        console.log('Fetched NFTs:', fetchedNfts)
       } catch (error) {
-        console.log('Failed to fetch NFTs', error)
+        console.error('Failed to fetch NFTs', error)
+        if (error instanceof Error) {
+          console.error('Error message:', error.message)
+          console.error('Error stack:', error.stack)
+        }
         setNfts([])
       }
     }
