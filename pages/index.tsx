@@ -1,3 +1,4 @@
+import BentoGrid from '@/components/BentoGrid'
 import Hero from '@/components/Hero'
 import NftList from '@/components/NftList'
 import { getAllNfts } from '@/services/blockchain'
@@ -43,7 +44,6 @@ const Page: NextPage = () => {
 
       <Hero />
 
-    
       <main className="container mx-auto px-4 py-8">
         <NftList nfts={collection} />
         {collection.length > 0 && nfts.length > collection.length && (
@@ -57,8 +57,8 @@ const Page: NextPage = () => {
           </div>
         )}
       </main>
-      </div>
-    
+      <BentoGrid />
+    </div>
   )
 }
 
