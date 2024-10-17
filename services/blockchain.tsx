@@ -21,13 +21,21 @@ if (typeof window !== 'undefined') ethereum = (window as any).ethereum
 const { setNft, setSales } = globalActions
 
 const getEthereumContract = async () => {
-  const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL)
-  const signer = await provider.getSigner()
-  const contract = new ethers.Contract(address.Nftmart, abi.abi, signer)
-  return contract
+  const accounts = await ethereum?.request?.({ method: 'eth_accounts' })
+
+  if (accounts?.length > 0) {
+    const provider = new ethers.BrowserProvider(ethereum)
+    const signer = await provider.getSigner()
+    const contracts = new ethers.Contract(address.Nftmart, abi.abi, signer)
+
+    return contracts
+  } else {
+    const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_RPC_URL)
+    const contracts = new ethers.Contract(address.Nftmart, abi.abi, provider)
+
+    return contracts
+  }
 }
-
-
 
 const createNft = async (nft: NftParams): Promise<void> => {
   if (!ethereum) {
