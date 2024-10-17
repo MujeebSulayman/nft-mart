@@ -307,9 +307,13 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   function mintNft(uint256 nftId) public returns (bool) {
     require(nftExists[nftId], 'Nft does not exist');
     require(!nfts[nftId].minted, 'Nft already minted');
-    require(msg.sender == nfts[nftId].owner, 'Only the owner can mint this NFT');
 
-    _mint(msg.sender, nftId);
+    for (uint256 i = 0; i < sales[nftId].length; i++) {
+      _totalTokens.increment();
+      sales[nftId][i].minted = true;
+      _mint(sales[nftId][i].owner, nftId); 
+    }
+
     nfts[nftId].minted = true;
     return true;
   }

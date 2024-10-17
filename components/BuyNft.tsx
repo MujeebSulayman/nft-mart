@@ -1,10 +1,8 @@
-
 import { buyNft } from '@/services/blockchain'
 import { globalActions } from '@/store/globalSlices'
-import { globalStates } from '@/store/states/globalStates'
 import { NftStruct, RootState } from '@/utils/type.dt'
 import { useRouter } from 'next/router'
-import React, { useState, useRef, useEffect, FormEvent } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { FaTimes } from 'react-icons/fa'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
@@ -32,34 +30,48 @@ const BuyNft: React.FC<{ nft: NftStruct }> = ({ nft }) => {
     }
   }, [])
 
-  const handleSubmit = async (e: FormEvent) => {
+  useEffect(() => {
+    if (!address) {
+      toast.info('Please connect your wallet to buy NFTs', {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  }, [address]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!address) {
-      toast.warn('Kindly connect your wallet')
+      toast.warn('Please connect your wallet')
+      return
+    }
+
+    try {
       await toast.promise(
-        new Promise(async (resolve, reject) => {
-          await buyNft(nft)
-            .then((tx) => {
-              console.log(tx)
-              onClose() // Close the modal
-              resolve(tx)
-              router.push(`/nfts/${nft.id}`)
-            })
-            .catch((error) => {
-              reject(error)
-            })
-        }),
+        buyNft(nft),
         {
-          pending: 'Approve transaction...',
-          success: 'Nft purchased successfully',
-          error: 'Encountered an error',
+          pending: 'Processing transaction...',
+          success: 'NFT purchased successfully',
+          error: 'Failed to purchase NFT',
         }
       )
+      onClose()
+      router.push(`/nfts/${nft.id}`)
+    } catch (error) {
+      console.error('Error buying NFT:', error)
+      toast.error('An error occurred while purchasing the NFT')
     }
   }
+
   const onClose = () => {
     dispatch(setSaleModal('scale-0'))
   }
+
+  const canBuyNft = address && address.toLowerCase() !== nft.owner.toLowerCase()
 
   return (
     <div
@@ -72,7 +84,7 @@ const BuyNft: React.FC<{ nft: NftStruct }> = ({ nft }) => {
       >
         <div className="flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-indigo-600">Buy Nft</h2>
+            <h2 className="text-2xl font-bold text-indigo-600">Buy NFT</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -84,12 +96,20 @@ const BuyNft: React.FC<{ nft: NftStruct }> = ({ nft }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center space-x-2">
               <h3 className="text-xl font-bold">Price: {nft.price} ETH</h3>
-              <button
-                type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-              >
-                Buy Now
-              </button>
+              {canBuyNft ? (
+                <button
+                  type="submit"
+                  className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                >
+                  Buy Now
+                </button>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  {!address 
+                    ? "Please connect your wallet to buy this NFT" 
+                    : "You can't buy your own NFT"}
+                </p>
+              )}
             </div>
           </form>
 

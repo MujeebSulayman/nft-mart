@@ -69,14 +69,14 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="container mx-auto px-4 pt-[10%] pb-8">
+      <main className="container mx-auto px-4 pt-[7%] pb-8">
         <div className="rounded-lg shadow-xl overflow-hidden">
           <div className="md:flex">
             <div className="md:w-1/2 p-6">
               <img
                 src={nft.imageUrl}
                 alt={nft.name}
-                width={400}
+                width={450}
                 height={400}
                 className="object-cover rounded-lg"
               />
@@ -135,18 +135,24 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
               </div>
 
               <div className="mt-6">
-                {(address !== nft.owner || !address) && nft.endTime > Date.now() && (
+                {!address ? (
                   <button
                     onClick={() => dispatch(setSaleModal('scale-100'))}
                     className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors mb-4"
                   >
                     Buy NFT
                   </button>
-                )}
-                {address === nft.owner && (
+                ) : address === nft.owner ? (
                   <div className="space-y-4">
                     <NftActions nft={nft} />
                   </div>
+                ) : nft.endTime > Date.now() && (
+                  <button
+                    onClick={() => dispatch(setSaleModal('scale-100'))}
+                    className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors mb-4"
+                  >
+                    Buy NFT
+                  </button>
                 )}
               </div>
             </div>
