@@ -14,11 +14,8 @@ import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { publicProvider } from 'wagmi/providers/public'
 
 const { chains, publicClient } = configureChains(
-  [sepolia], // Only include Sepolia chain
-  [
-    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID as string }),
-    publicProvider()
-  ]
+  [sepolia],
+  [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID as string }), publicProvider()]
 )
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string
@@ -29,7 +26,7 @@ const connectors = connectorsForWallets([
     wallets: [
       metaMaskWallet({ projectId, chains }),
       trustWallet({ projectId, chains }),
-      coinbaseWallet({ appName: 'Nft Mart', chains }),
+      coinbaseWallet({ appName: 'Coinbase', chains }),
       rainbowWallet({ projectId, chains }),
     ],
   },

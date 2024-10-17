@@ -141,4 +141,5 @@ const ConnectBtn: React.FC<{ networks?: boolean }> = ({ networks }) => {
     </ConnectButton.Custom>
   )
 }
+
 export default ConnectBtn
