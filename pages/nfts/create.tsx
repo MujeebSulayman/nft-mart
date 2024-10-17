@@ -19,10 +19,9 @@ const Page: NextPage = () => {
   })
 
   useEffect(() => {
-    // Simulate loading delay
     const timer = setTimeout(() => {
       setLoading(false)
-    }, 1500)
+    }, 1000)
 
     return () => clearTimeout(timer)
   }, [])
@@ -45,6 +44,7 @@ const Page: NextPage = () => {
       new Promise(async (resolve, reject) => {
         createNft(nft)
           .then((tx) => {
+            
             console.log(tx)
             resetForm()
             resolve(tx)

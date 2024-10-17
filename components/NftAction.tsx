@@ -1,259 +1,229 @@
-import { Menu, Transition } from '@headlessui/react'
-import { BsThreeDotsVertical, BsTrash, BsPencilSquare, BsCashCoin, BsX } from 'react-icons/bs'
-import React, { Fragment, useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FiEdit, FiDollarSign, FiCodesandbox, FiSend, FiTrash2 } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
 import { NftStruct } from '@/utils/type.dt'
 import { useRouter } from 'next/router'
-import { deleteNft, mintNft, payout } from '@/services/blockchain'
+import { deleteNft, mintNft, payout, transferOwnership } from '@/services/blockchain'
 
 const NftAction: React.FC<{ nft: NftStruct }> = ({ nft }) => {
   const { address } = useAccount()
   const router = useRouter()
-  const [isAbove, setIsAbove] = useState(false)
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-
-  useEffect(() => {
-    const checkPosition = () => {
-      if (buttonRef.current) {
-        const rect = buttonRef.current.getBoundingClientRect()
-        const spaceBelow = window.innerHeight - rect.bottom
-        setIsAbove(spaceBelow < 200) // Adjust this value based on your menu height
-      }
-    }
-
-    checkPosition()
-    window.addEventListener('resize', checkPosition)
-    return () => window.removeEventListener('resize', checkPosition)
-  }, [])
-
-  const handleDelete = async () => {
-    if (!address) return toast.warn('Connect wallet first')
-    setIsDeleteModalOpen(true)
-  }
-
-  const confirmDelete = async () => {
-    setIsDeleteModalOpen(false)
-    await toast.promise(
-      new Promise(async (resolve, reject) => {
-        deleteNft(nft.id)
-          .then(() => {
-            resolve(nft)
-            router.push('/')
-          })
-          .catch((error) => {
-            reject(error)
-          })
-      }),
-      {
-        pending: 'Deleting Nft...',
-        success: 'Nft deleted successfully',
-        error: 'Encountered an error',
-      }
-    )
-  }
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
+  const [newOwnerAddress, setNewOwnerAddress] = useState('')
 
   const handlePayout = async () => {
     if (!address) return toast.warn('Connect wallet first')
-
-    const userConfirmed = window.confirm('Are you sure you want to payout this Nft?')
-    if (!userConfirmed) return
-
     await toast.promise(
-      new Promise(async (resolve, reject) => {
-        payout(nft.id)
-          .then(() => {
-            resolve(nft)
-            router.push(`/nfts/${nft.id}`)
-          })
-          .catch((error) => {
-            reject(error)
-          })
-      }),
+      payout(nft.id),
       {
-        pending: 'Approve transaction...',
-        success: 'Nft paid out successfully',
-        error: 'Encountered an error',
+        pending: 'Processing payout...',
+        success: 'Payout successful!',
+        error: 'Payout failed',
       }
     )
+    router.push(`/nfts/${nft.id}`)
   }
 
   const handleMint = async () => {
-    if (!address) return toast.warn('Connect Wallet First')
-
-    const userConfirmed = window.confirm('Are you sure you want to mint this Nft?')
-    if (!userConfirmed) return
-
+    if (!address) return toast.warn('Connect wallet first')
     await toast.promise(
-      new Promise(async (resolve, reject) => {
-        mintNft(nft.id)
-          .then(() => {
-            resolve(nft)
-            router.push(`/nfts/${nft.id}`)
-          })
-          .catch((error) => {
-            reject(error)
-          })
-      }),
+      mintNft(nft.id),
       {
-        pending: 'Approve transaction...',
-        success: 'Nft paid out successfully',
-        error: 'Encountered an error',
+        pending: 'Minting NFT...',
+        success: 'NFT minted successfully!',
+        error: 'Minting failed',
       }
     )
+    router.push(`/nfts/${nft.id}`)
+  }
+
+  const handleDelete = async () => {
+    if (!address) return toast.warn('Connect wallet first')
+    await toast.promise(
+      deleteNft(nft.id),
+      {
+        pending: 'Deleting NFT...',
+        success: 'NFT deleted successfully!',
+        error: 'Deletion failed',
+      }
+    )
+    router.push('/')
   }
 
   const handleTransfer = async () => {
-    if (!address) return toast.warn('Connect Wallet First')
+    if (!address) return toast.warn('Connect wallet first')
+    if (!newOwnerAddress) return toast.warn('Please enter a valid address')
+    await toast.promise(
+      transferOwnership(nft.id, newOwnerAddress),
+      {
+        pending: 'Transferring ownership...',
+        success: 'Ownership transferred successfully!',
+        error: 'Transfer failed',
+      }
+    )
+    setIsTransferModalOpen(false)
+    setNewOwnerAddress('')
+    router.push(`/nfts/${nft.id}`)
   }
 
-  const handleModalClose = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      setIsDeleteModalOpen(false)
-    }
-  }
+  const ActionButton: React.FC<{ icon: React.ReactNode; text: string; onClick: () => void; color: string }> = ({ icon, text, onClick, color }) => (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className={`flex items-center justify-center w-full p-3 rounded-lg ${color} text-white font-medium`}
+      onClick={onClick}
+    >
+      {icon}
+      <span className="ml-2">{text}</span>
+    </motion.button>
+  )
 
   return (
     <>
-      <Menu as="div" className="relative inline-block text-left">
-        <div>
-          <Menu.Button
-            ref={buttonRef}
-            className="inline-flex justify-center items-center px-6 py-3 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
-          >
-            Actions
-            <BsThreeDotsVertical
-              className="w-5 h-5 ml-2 -mr-1 text-indigo-200 hover:text-indigo-100"
-              aria-hidden="true"
-            />
-          </Menu.Button>
-        </div>
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <Menu.Items
-            className={`absolute ${
-              isAbove ? 'bottom-full mb-2' : 'top-full mt-2'
-            } right-0 w-56 origin-top-right bg-gray-800 divide-y divide-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}
-          >
-            <div className="px-1 py-1">
-              <Menu.Item>
-                {({ active }) => (
-                  <Link
-                    href={'/nfts/edit/' + nft.id}
-                    className={`${
-                      active ? 'bg-gray-700 text-white' : 'text-gray-200'
-                    } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                  >
-                    <BsPencilSquare className="w-5 h-5 mr-2" aria-hidden="true" />
-                    Edit
-                  </Link>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    className={`${
-                      active ? 'bg-gray-700 text-white' : 'text-gray-200'
-                    } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                    onClick={handlePayout}
-                  >
-                    <BsCashCoin className="w-5 h-5 mr-2" aria-hidden="true" />
-                    Payout
-                  </button>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    className={`${
-                      active ? 'bg-gray-700 text-white' : 'text-gray-200'
-                    } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                    onClick={handleMint}
-                  >
-                    <BsCashCoin className="w-5 h-5 mr-2" aria-hidden="true" />
-                    Mint Nft
-                  </button>
-                )}
-              </Menu.Item>
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    className={`${
-                      active ? 'bg-gray-700 text-white' : 'text-gray-200'
-                    } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                    onClick={handleTransfer}
-                  >
-                    <BsCashCoin className="w-5 h-5 mr-2" aria-hidden="true" />
-                    Transfer Nft Ownership
-                  </button>
-                )}
-              </Menu.Item>
-              {!nft.paidOut && (
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-red-600 text-white' : 'text-red-500'
-                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                      onClick={handleDelete}
-                    >
-                      <BsTrash className="w-5 h-5 mr-2" aria-hidden="true" />
-                      Delete
-                    </button>
-                  )}
-                </Menu.Item>
-              )}
-            </div>
-          </Menu.Items>
-        </Transition>
-      </Menu>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium"
+        onClick={() => setIsModalOpen(true)}
+      >
+        Manage NFT
+      </motion.button>
 
-      {isDeleteModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={handleModalClose}
-        >
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-              <h2 className="text-xl font-semibold text-gray-900">Confirm Deletion</h2>
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="text-gray-400 hover:text-gray-500 focus:outline-none"
-              >
-                <BsX className="h-6 w-6" />
-              </button>
-            </div>
-            <div className="px-6 py-4">
-              <p className="text-gray-700">
-                Are you sure you want to delete this nft? This action cannot be undone.
-              </p>
-            </div>
-            <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-4 rounded-b-lg">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 bg-white text-gray-700 rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl p-6 w-full max-w-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-2xl font-bold mb-4">Manage NFT</h2>
+              <div className="space-y-3">
+                <ActionButton
+                  icon={<FiEdit />}
+                  text="Edit NFT"
+                  onClick={() => router.push(`/nfts/edit/${nft.id}`)}
+                  color="bg-blue-500 hover:bg-blue-600"
+                />
+                <ActionButton
+                  icon={<FiDollarSign />}
+                  text="Payout"
+                  onClick={handlePayout}
+                  color="bg-green-500 hover:bg-green-600"
+                />
+                <ActionButton
+                  icon={<FiCodesandbox />}
+                  text="Mint NFT"
+                  onClick={handleMint}
+                  color="bg-purple-500 hover:bg-purple-600"
+                />
+                <ActionButton
+                  icon={<FiSend />}
+                  text="Transfer Ownership"
+                  onClick={() => setIsTransferModalOpen(true)}
+                  color="bg-indigo-500 hover:bg-indigo-600"
+                />
+                {!nft.paidOut && (
+                  <ActionButton
+                    icon={<FiTrash2 />}
+                    text="Delete NFT"
+                    onClick={() => setIsDeleteConfirmOpen(true)}
+                    color="bg-red-500 hover:bg-red-600"
+                  />
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isDeleteConfirmOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl p-6 w-full max-w-sm"
+            >
+              <h2 className="text-2xl font-bold mb-4">Confirm Deletion</h2>
+              <p className="mb-4">Are you sure you want to delete this NFT? This action cannot be undone.</p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                  onClick={() => setIsDeleteConfirmOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isTransferModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-xl p-6 w-full max-w-sm"
+            >
+              <h2 className="text-2xl font-bold mb-4">Transfer NFT Ownership</h2>
+              <input
+                type="text"
+                value={newOwnerAddress}
+                onChange={(e) => setNewOwnerAddress(e.target.value)}
+                placeholder="Enter new owner's address"
+                className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
+              />
+              <div className="flex justify-end space-x-3">
+                <button
+                  className="px-4 py-2 bg-gray-200 rounded-lg"
+                  onClick={() => setIsTransferModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-indigo-500 text-white rounded-lg"
+                  onClick={handleTransfer}
+                >
+                  Transfer
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
