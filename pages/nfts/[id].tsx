@@ -5,8 +5,6 @@ import { useAccount } from 'wagmi'
 import { useDispatch, useSelector } from 'react-redux'
 import { FaEthereum, FaUser, FaCopy, FaClock } from 'react-icons/fa'
 import { toast } from 'react-toastify'
-import Moment from 'react-moment'
-
 import { NftStruct, RootState, SaleStruct } from '@/utils/type.dt'
 import { globalActions } from '@/store/globalSlices'
 import { calculateDateDifference, truncate } from '@/utils/helper'
@@ -14,6 +12,7 @@ import { getAllSales, getSingleNft } from '@/services/blockchain'
 import BuyNft from '@/components/BuyNft'
 import NftActions from '@/components/NftAction'
 import TransactionHistory from '@/components/TransactionHistory'
+import { GetStaticPropsContext, GetStaticPathsResult } from 'next'
 
 interface ComponentProps {
   nftData: NftStruct
@@ -24,17 +23,34 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
   const { address } = useAccount()
   const dispatch = useDispatch()
   const { setNft, setSales, setSaleModal } = globalActions
-  const { nft, sales } = useSelector((states: RootState) => states.globalStates)
+  const [nft, setLocalNft] = useState<NftStruct | null>(nftData)
+  const [sales, setLocalSales] = useState<SaleStruct[]>(salesData)
+  const [isOffline, setIsOffline] = useState(false)
   const [countdown, setCountdown] = useState('')
   const [showNftActions, setShowNftActions] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    setLoading(true)
-    dispatch(setNft(nftData))
-    dispatch(setSales(salesData))
-    setLoading(false)
-  }, [dispatch, setNft, nftData, setSales, salesData])
+    setIsOffline(!navigator.onLine)
+    window.addEventListener('online', () => setIsOffline(false))
+    window.addEventListener('offline', () => setIsOffline(true))
+
+    return () => {
+      window.removeEventListener('online', () => setIsOffline(false))
+      window.removeEventListener('offline', () => setIsOffline(true))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isOffline) {
+      setLoading(true)
+      dispatch(setNft(nftData))
+      dispatch(setSales(salesData))
+      setLocalNft(nftData)
+      setLocalSales(salesData)
+      setLoading(false)
+    }
+  }, [dispatch, setNft, nftData, setSales, salesData, isOffline])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -46,19 +62,19 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
     return () => clearInterval(timer)
   }, [nft])
 
-  useEffect(() => {
-    if (salesData.length > 0) {
-      console.log('Initial sales data:', salesData)
-    }
-  }, [salesData])
+  // useEffect(() => {
+  //   if (salesData.length > 0) {
+  //     console.log('Initial sales data:', salesData)
+  //   }
+  // }, [salesData])
 
-  useEffect(() => {
-    if (sales.length > 0) {
-      console.log('Updated NFT Transaction History:', sales)
-    } else {
-      console.log('No sales data available')
-    }
-  }, [sales])
+  // useEffect(() => {
+  //   if (sales.length > 0) {
+  //     console.log('Updated NFT Transaction History:', sales)
+  //   } else {
+  //     console.log('No sales data available')
+  //   }
+  // }, [sales])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -75,7 +91,12 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
   if (!nft) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-white">
+            {isOffline ? "You're offline. Some data may not be up to date." : 'Loading NFT data...'}
+          </p>
+        </div>
       </div>
     )
   }

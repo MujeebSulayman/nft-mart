@@ -15,7 +15,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ sales }) => {
       .writeText(text)
       .then(() => {
         toast.success('Address copied to clipboard!', {
-          position: 'top-right',
+          position: 'bottom-center',
           autoClose: 2000,
           hideProgressBar: false,
           closeOnClick: true,
