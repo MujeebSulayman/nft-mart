@@ -6,7 +6,12 @@ import { store } from '@/store'
 import { globalActions } from '@/store/globalSlices'
 
 const toWei = (num: number) => ethers.parseEther(num.toString())
-const fromWei = (num: number) => ethers.formatEther(num)
+const fromWei = (num: string | number | null): string => {
+  if (num === null || num === undefined) {
+    return '0';
+  }
+  return ethers.formatEther(num.toString());
+}
 
 let ethereum: any
 let tx: any
