@@ -228,7 +228,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   }
 
   // Get Sales of a Nft
-  function getSale(uint256 nftId) public view returns (SalesStruct memory) {
+  function getSale(uint256 nftId) public view returns (SalesStruct[] memory) {
     return sales[nftId];
   }
 
@@ -304,16 +304,12 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   }
 
   //Mint Nft
-  function mintNft(uint256 nftId) internal returns (bool) {
+  function mintNft(uint256 nftId) public returns (bool) {
     require(nftExists[nftId], 'Nft does not exist');
     require(!nfts[nftId].minted, 'Nft already minted');
+    require(msg.sender == nfts[nftId].owner, 'Only the owner can mint this NFT');
 
-    for (uint256 i = 0; i < sales[nftId].length; i++) {
-      _totalTokens.increment();
-      sales[nftId][i].minted = true;
-      _mint(sales[nftId][i].owner, nftId); // Use nftId as the tokenId
-    }
-
+    _mint(msg.sender, nftId);
     nfts[nftId].minted = true;
     return true;
   }
