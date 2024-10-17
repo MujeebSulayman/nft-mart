@@ -76,7 +76,9 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
               <img
                 src={nft.imageUrl}
                 alt={nft.name}
-                className="w-full h-auto object-cover rounded-lg"
+                width={400}
+                height={400}
+                className="object-cover rounded-lg"
               />
             </div>
             <div className="md:w-1/2 p-6">

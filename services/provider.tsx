@@ -20,22 +20,22 @@ import { Session } from 'next-auth'
 import { SessionProvider } from 'next-auth/react'
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 
-const { chains, publicClient } = configureChains(
-  [sepolia, hardhat],
-  [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID as string }), publicProvider()]
-)
-
 // const { chains, publicClient } = configureChains(
-//   [sepolia],
-//   [
-//     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID as string }),
-//     jsonRpcProvider({
-//       rpc: () => ({
-//         http: process.env.NEXT_PUBLIC_RPC_URL as string,
-//       }),
-//     }),
-//   ]
+//   [sepolia, hardhat],
+//   [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID as string }), publicProvider()]
 // )
+
+const { chains, publicClient } = configureChains(
+  [sepolia],
+  [
+    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_ID as string }),
+    jsonRpcProvider({
+      rpc: () => ({
+        http: process.env.NEXT_PUBLIC_RPC_URL as string,
+      }),
+    }),
+  ]
+)
 
 const projectId = process.env.NEXT_PUBLIC_PROJECT_ID as string
 
