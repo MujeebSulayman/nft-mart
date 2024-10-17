@@ -22,13 +22,11 @@ export default async function auth(req, res) {
       async authorize(credentials) {
         try {
           const siwe = new SiweMessage(JSON.parse(credentials?.message || '{}'))
-          const nextAuthUrl = process.env.NODE_ENV === 'production'
-            ? process.env.NEXTAUTH_URL_PRODUCTION
-            : process.env.NEXTAUTH_URL_DEVELOPMENT
+          const nextAuthUrl = new URL(process.env.NEXTAUTH_URL)
 
           const result = await siwe.verify({
             signature: credentials?.signature || '',
-            domain: new URL(nextAuthUrl).host,
+            domain: nextAuthUrl.host,
             nonce: await getCsrfToken({ req }),
           })
 

@@ -13,12 +13,7 @@ const nextConfig = {
       {
         source: '/:path*',
         headers: [
-          { 
-            key: 'Access-Control-Allow-Origin', 
-            value: process.env.NODE_ENV === 'production'
-              ? 'https://nft-mart-seven.vercel.app'
-              : 'http://localhost:3000, https://nft-mart-seven.vercel.app' 
-          },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
         ],
       },
     ]
