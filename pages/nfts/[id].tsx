@@ -1,4 +1,9 @@
-import { GetServerSidePropsContext, NextPage } from 'next'
+import {
+  GetServerSidePropsContext,
+  NextPage,
+  GetStaticPathsResult,
+  GetStaticPropsContext,
+} from 'next'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
@@ -12,7 +17,7 @@ import { getAllSales, getSingleNft } from '@/services/blockchain'
 import BuyNft from '@/components/BuyNft'
 import NftActions from '@/components/NftAction'
 import TransactionHistory from '@/components/TransactionHistory'
-import { GetStaticPropsContext, GetStaticPathsResult } from 'next'
+
 
 interface ComponentProps {
   nftData: NftStruct
