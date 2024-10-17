@@ -2,9 +2,11 @@ import React, { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { FaEthereum } from 'react-icons/fa'
+import { useRouter } from 'next/router'
 
 const Hero: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -115,12 +117,19 @@ const Hero: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <button className="bg-purple-600 hover:bg-purple-700 px-6 md:px-8 py-2 md:py-3 rounded-lg text-base md:text-lg font-semibold text-white transition-colors">
+              <Link
+                href={'/explore'}
+                className="bg-purple-600 hover:bg-purple-700 px-6 md:px-8 py-2 md:py-3 rounded-lg text-base md:text-lg font-semibold text-white transition-colors"
+              >
                 Explore
-              </button>
-              <button className="bg-transparent border-2 border-purple-400 text-purple-400 px-6 md:px-8 py-2 md:py-3 rounded-lg text-base md:text-lg font-semibold hover:bg-purple-400 hover:text-white transition-colors">
+              </Link>
+
+              <Link
+                href={'/nfts/create'}
+                className="bg-transparent border-2 border-purple-400 text-purple-400 px-6 md:px-8 py-2 md:py-3 rounded-lg text-base md:text-lg font-semibold hover:bg-purple-400 hover:text-white transition-colors"
+              >
                 Create
-              </button>
+              </Link>
             </motion.div>
             <div className="flex space-x-4 md:space-x-8">
               <div className="text-center backdrop-blur-md bg-purple-900/30 rounded-lg shadow-lg p-3 md:p-4">

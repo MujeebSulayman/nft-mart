@@ -13,8 +13,8 @@ const AllNftsPage: NextPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetcedNfts: NftStruct[] = await getAllNfts()
-      setNfts(fetcedNfts)
+      const fetchedNfts: NftStruct[] = await getAllNfts()
+      setNfts(fetchedNfts)
     }
 
     fetchData()
@@ -23,6 +23,7 @@ const AllNftsPage: NextPage = () => {
   useEffect(() => {
     setCollection(nfts.slice(0, end))
   }, [nfts, end])
+
   return (
     <div className="bg-black min-h-screen">
       <Head>

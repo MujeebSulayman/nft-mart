@@ -1,13 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 import { useAccount } from 'wagmi'
 import { NftParams } from '@/utils/type.dt'
 import { createNft } from '@/services/blockchain'
 import { toast } from 'react-toastify'
 import Head from 'next/head'
+import CreateNftSkeleton from '@/components/CreateNftSkeleton'
 
 const Page: NextPage = () => {
   const { address } = useAccount()
+  const [loading, setLoading] = useState(true)
   const [nft, setNft] = useState<NftParams>({
     name: '',
     description: '',
@@ -15,6 +17,15 @@ const Page: NextPage = () => {
     endTime: '',
     price: '',
   })
+
+  useEffect(() => {
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -62,6 +73,10 @@ const Page: NextPage = () => {
 
   const inputClasses =
     'mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-150 ease-in-out'
+
+  if (loading) {
+    return <CreateNftSkeleton />
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br text-gray-300">

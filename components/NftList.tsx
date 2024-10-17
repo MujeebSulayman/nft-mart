@@ -1,9 +1,19 @@
 import Link from 'next/link'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { FaEthereum } from 'react-icons/fa'
 import { NftStruct } from '@/utils/type.dt'
 
 const NftList: React.FC<{ nfts: NftStruct[] }> = ({ nfts }) => {
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [])
+
   return (
     <section className="pt-32 pb-16 ">
       <main className="container mx-auto px-4">
@@ -11,9 +21,9 @@ const NftList: React.FC<{ nfts: NftStruct[] }> = ({ nfts }) => {
           Explore Digital Masterpieces
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {nfts.map((nft, i) => (
-            <Card key={i} nft={nft} />
-          ))}
+          {loading || nfts.length === 0
+            ? Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)
+            : nfts.map((nft, i) => <Card key={i} nft={nft} />)}
         </div>
       </main>
     </section>

@@ -51,11 +51,11 @@ const Header: React.FC = () => {
             </motion.button>
           </div>
           <nav className="hidden md:flex space-x-10">
-            <NavLink href="/explore">Explore</NavLink>
-            <NavLink href="/nfts">All Nfts</NavLink>
-            <NavLink href="nfts/create">Create</NavLink>
-            <NavLink href="/about">About</NavLink>
-            <NavLink href="/contact">Contact</NavLink>
+            <Link href="/explore">Explore</Link>
+            <Link href="/nfts">All Nfts</Link>
+            <Link href="nfts/create">Create</Link>
+            <Link href="/about">About</Link>
+            <Link href="/contact">Contact</Link>
           </nav>
           <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
             <ConnectBtn networks />
