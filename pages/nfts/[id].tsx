@@ -13,6 +13,7 @@ import { calculateDateDifference, truncate } from '@/utils/helper'
 import { getAllSales, getSingleNft } from '@/services/blockchain'
 import BuyNft from '@/components/BuyNft'
 import NftActions from '@/components/NftAction'
+import TransactionHistory from '@/components/TransactionHistory'
 
 interface ComponentProps {
   nftData: NftStruct
@@ -26,10 +27,13 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
   const { nft, sales } = useSelector((states: RootState) => states.globalStates)
   const [countdown, setCountdown] = useState('')
   const [showNftActions, setShowNftActions] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setLoading(true)
     dispatch(setNft(nftData))
     dispatch(setSales(salesData))
+    setLoading(false)
   }, [dispatch, setNft, nftData, setSales, salesData])
 
   useEffect(() => {
@@ -41,6 +45,20 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
     }, 1000)
     return () => clearInterval(timer)
   }, [nft])
+
+  useEffect(() => {
+    if (salesData.length > 0) {
+      console.log('Initial sales data:', salesData)
+    }
+  }, [salesData])
+
+  useEffect(() => {
+    if (sales.length > 0) {
+      console.log('Updated NFT Transaction History:', sales)
+    } else {
+      console.log('No sales data available')
+    }
+  }, [sales])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -146,68 +164,22 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
                   <div className="space-y-4">
                     <NftActions nft={nft} />
                   </div>
-                ) : nft.endTime > Date.now() && (
-                  <button
-                    onClick={() => dispatch(setSaleModal('scale-100'))}
-                    className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors mb-4"
-                  >
-                    Buy NFT
-                  </button>
+                ) : (
+                  nft.endTime > Date.now() && (
+                    <button
+                      onClick={() => dispatch(setSaleModal('scale-100'))}
+                      className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors mb-4"
+                    >
+                      Buy NFT
+                    </button>
+                  )
                 )}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-12">
-          <h2 className="text-2xl font-semibold mb-6">Transaction History</h2>
-          <div className="rounded-lg shadow-xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gray-700">
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Buyer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Price
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                      Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-600">
-                  {sales.map((sale, i) => (
-                    <tr key={i}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-3">
-                          <span className="font-medium">
-                            {truncate({
-                              text: sale.owner,
-                              startChars: 4,
-                              endChars: 4,
-                              maxLength: 11,
-                            })}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="flex items-center text-purple-400 font-semibold">
-                          <FaEthereum className="mr-1" />
-                          {sale.price.toFixed(4)} ETH
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-300">
-                        <Moment fromNow>{sale.timestamp}</Moment>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <TransactionHistory sales={sales} />
       </main>
 
       <BuyNft nft={nft} />
