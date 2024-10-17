@@ -168,8 +168,18 @@ const getSale = async (nftId: number): Promise<SaleStruct> => {
 
 const getAllSales = async (nftId: number): Promise<SaleStruct[]> => {
   const contract = await getEthereumContract()
-  const sales = await contract.getAllSales(nftId)
-  return structuredSale(sales)
+  // Check if the function exists in your contract
+  if (typeof contract.getAllSales !== 'function') {
+    console.error('getAllSales function not found in the contract')
+    return []
+  }
+  try {
+    const sales = await contract.getAllSales(nftId)
+    return structuredSale(sales)
+  } catch (error) {
+    console.error('Error fetching sales:', error)
+    return []
+  }
 }
 
 const getMySales = async (): Promise<SaleStruct[]> => {
