@@ -6,13 +6,13 @@ import { useAccount } from 'wagmi'
 import { useDispatch, useSelector } from 'react-redux'
 import { globalActions } from '@/store/globalSlices'
 import Head from 'next/head'
-import { BsCalendar, BsClock, BsPeople, BsGeoAlt } from 'react-icons/bs'
+import { BsClock } from 'react-icons/bs'
 import { FaEthereum } from 'react-icons/fa'
 import Identicon from 'react-identicons'
 import Moment from 'react-moment'
 import Link from 'next/link'
 import BuyNft from '@/components/BuyNft'
-import { getSale, getSingleNft } from '@/services/blockchain'
+import { getAllSales, getSale, getSingleNft } from '@/services/blockchain'
 import NftActions from '@/components/NftAction'
 
 interface ComponentProps {
@@ -26,15 +26,10 @@ const Page: NextPage<ComponentProps> = ({ nftData, salesData }) => {
   const { setNft, setSales, setSaleModal } = globalActions
   const { nft, sales } = useSelector((states: RootState) => states.globalStates)
   const [countdown, setCountdown] = useState('')
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (nftData && salesData) {
-      dispatch(setNft(nftData))
-      dispatch(setSales(salesData))
-    } else {
-      setError('Failed to load NFT data')
-    }
+    dispatch(setNft(nftData))
+    dispatch(setSales(salesData))
   }, [dispatch, setNft, nftData, setSales, salesData])
 
   useEffect(() => {
@@ -47,19 +42,7 @@ const Page: NextPage<ComponentProps> = ({ nftData, salesData }) => {
     return () => clearInterval(timer)
   }, [nft])
 
-  if (error) {
-    return <div className="text-red-500 text-center mt-10">{error}</div>
-  }
-
-  if (!nft) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-gray-900">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-    )
-  }
-
-  return (
+  return nft ? (
     <div className="min-h-screen text-white flex flex-col">
       <Head>
         <title>Nft Mart | {nft.name}</title>
@@ -201,6 +184,10 @@ const Page: NextPage<ComponentProps> = ({ nftData, salesData }) => {
 
       <BuyNft nft={nft} />
     </div>
+  ) : (
+    <div className="flex justify-center items-center h-screen bg-black">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
+    </div>
   )
 }
 
@@ -210,7 +197,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   try {
     const { id } = context.query
     const nftData: NftStruct = await getSingleNft(Number(id))
-    const salesData: SaleStruct[] = await getSale(Number(id))
+    const salesData: SaleStruct[] = await getAllSales(Number(id))
 
     return {
       props: {

@@ -162,8 +162,8 @@ const Page: NextPage = () => {
                   name="price"
                   id="price"
                   aria-placeholder="0.1"
-                  min="0.001"
-                  step="0.001"
+                  min="0.0001"
+                  step="0.0001"
                   className={inputClasses}
                   placeholder="Enter Price"
                   value={nft.price}

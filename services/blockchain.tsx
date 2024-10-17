@@ -8,9 +8,9 @@ import { globalActions } from '@/store/globalSlices'
 const toWei = (num: number) => ethers.parseEther(num.toString())
 const fromWei = (num: string | number | null): string => {
   if (num === null || num === undefined) {
-    return '0';
+    return '0'
   }
-  return ethers.formatEther(num.toString());
+  return ethers.formatEther(num.toString())
 }
 
 let ethereum: any
@@ -18,7 +18,7 @@ let tx: any
 
 if (typeof window !== 'undefined') ethereum = (window as any).ethereum
 
-const {setNft, setSales} = globalActions
+const { setNft, setSales } = globalActions
 
 const getEthereumContract = async () => {
   const accounts = await ethereum?.request?.({ method: 'eth_accounts' })
@@ -36,8 +36,6 @@ const getEthereumContract = async () => {
     return contracts
   }
 }
-
-
 
 const createNft = async (nft: NftParams): Promise<void> => {
   if (!ethereum) {
@@ -133,7 +131,7 @@ const buyNft = async (nft: NftStruct) => {
     const nftData: NftStruct = await getSingleNft(nft.id)
     store.dispatch(setNft(nftData))
 
-    const salesData: SaleStruct[] = await getSale(nft.id)
+    const salesData: SaleStruct[] = await getAllSales(nft.id)
     store.dispatch(setSales(salesData))
 
     await tx.wait()
@@ -153,7 +151,7 @@ const getAllNfts = async (): Promise<NftStruct[]> => {
 const getSingleNft = async (nftId: number): Promise<NftStruct> => {
   const contract = await getEthereumContract()
   const nft = await contract.getSingleNft(nftId)
-  return structuredNft(nft)[0]
+  return structuredNft([nft])[0]
 }
 
 const getMyNfts = async (): Promise<NftStruct[]> => {
@@ -162,15 +160,15 @@ const getMyNfts = async (): Promise<NftStruct[]> => {
   return structuredNft(nfts)
 }
 
-const getSale = async (nftId: number): Promise<SaleStruct[]> => {
+const getSale = async (nftId: number): Promise<SaleStruct> => {
   const contract = await getEthereumContract()
   const sale = await contract.getSale(nftId)
-  return structuredSale(sale)
+  return structuredSale([sale])[0]
 }
 
-const getAllSales = async (): Promise<SaleStruct[]> => {
+const getAllSales = async (nftId: number): Promise<SaleStruct[]> => {
   const contract = await getEthereumContract()
-  const sales = await contract.getAllSales()
+  const sales = await contract.getAllSales(nftId)
   return structuredSale(sales)
 }
 
