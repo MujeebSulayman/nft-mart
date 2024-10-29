@@ -32,7 +32,6 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
   const [sales, setLocalSales] = useState<SaleStruct[]>(salesData)
   const [isOffline, setIsOffline] = useState(false)
   const [countdown, setCountdown] = useState('')
-  const [showNftActions, setShowNftActions] = useState(false)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -67,19 +66,6 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
     return () => clearInterval(timer)
   }, [nft])
 
-  // useEffect(() => {
-  //   if (salesData.length > 0) {
-  //     console.log('Initial sales data:', salesData)
-  //   }
-  // }, [salesData])
-
-  // useEffect(() => {
-  //   if (sales.length > 0) {
-  //     console.log('Updated NFT Transaction History:', sales)
-  //   } else {
-  //     console.log('No sales data available')
-  //   }
-  // }, [sales])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)

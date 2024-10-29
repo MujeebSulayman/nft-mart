@@ -24,7 +24,7 @@ describe('Nftmart', function () {
       const description = 'This is a test NFT'
       const imageUrl = 'https://example.com/image.jpg'
       const currentTimestamp = Math.floor(Date.now() / 1000)
-      const endTime = currentTimestamp + 7 * 24 * 60 * 60 // 7 days from now
+      const endTime = currentTimestamp + 7 * 24 * 60 * 60 
       const price = ethers.parseEther('1')
 
       await nftmart.connect(user1).createNft(name, description, imageUrl, endTime * 1000, price)

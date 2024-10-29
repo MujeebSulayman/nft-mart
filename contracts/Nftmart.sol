@@ -205,8 +205,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     sale.nftId = nftId;
     sale.owner = msg.sender;
     sale.price = nfts[nftId].price;
-    sale.timestamp = currentTime(); //Come back to this, make sure to disable this when writting the test unit code
-    sale.endTime = nfts[nftId].endTime;
+    sale.timestamp = currentTime();
     sales[nftId].push(sale);
 
     balance += msg.value;
@@ -235,7 +234,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   // Get All Sales
   function getAllSales() public view returns (SalesStruct[] memory Sales) {
     uint256 totalSalesCount = 0;
-
+    
     for (uint256 i = 1; i <= _totalNfts.current(); i++) {
       totalSalesCount += sales[i].length;
     }
