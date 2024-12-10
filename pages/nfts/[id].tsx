@@ -176,17 +176,17 @@ const NftDetailsPage: NextPage<ComponentProps> = ({ nftData, salesData }) => {
                   <div className="space-y-4">
                     <NftActions nft={nft} />
                   </div>
-                ) : (
-                  nft.endTime > Date.now() && (
-                    <button
-                      onClick={() => dispatch(setSaleModal('scale-100'))}
-                      className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors mb-4"
-                    >
-                      Buy NFT
-                    </button>
-                  )
+                ) 
+                : (
+                  <button
+                    onClick={() => dispatch(setSaleModal('scale-100'))}
+                    className="w-full bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors mb-4"
+                  >
+                    Buy NFT
+                  </button>
                 )}
               </div>
+             
             </div>
           </div>
         </div>
