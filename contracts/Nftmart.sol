@@ -77,7 +77,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     require(bytes(name).length > 0, 'Name should be greater than zero');
     require(bytes(description).length > 0, 'Description should be greater than zero');
     require(bytes(imageUrl).length > 0, 'ImageUrl should be greater than zero');
-    require(endTime > currentTime(), 'End time should be greater than end time');
+    require(endTime > currentTime(), 'End time should be greater than current time');
 
     _totalNfts.increment();
     NftStruct memory nftX;
@@ -234,7 +234,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   // Get All Sales
   function getAllSales() public view returns (SalesStruct[] memory Sales) {
     uint256 totalSalesCount = 0;
-    
+
     for (uint256 i = 1; i <= _totalNfts.current(); i++) {
       totalSalesCount += sales[i].length;
     }
@@ -310,7 +310,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
     for (uint256 i = 0; i < sales[nftId].length; i++) {
       _totalTokens.increment();
       sales[nftId][i].minted = true;
-      _mint(sales[nftId][i].owner, nftId); 
+      _mint(sales[nftId][i].owner, nftId);
     }
 
     nfts[nftId].minted = true;
@@ -336,7 +336,7 @@ contract Nftmart is ERC721, Ownable, ReentrancyGuard {
   }
 
   // Get current time
- function currentTime() internal view returns (uint256) {
+  function currentTime() internal view returns (uint256) {
     return (block.timestamp * 1000) + 1000;
   }
 }
